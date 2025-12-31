@@ -1,29 +1,32 @@
-# Media Automation Tools
+# Plaud.ai to Google Drive Automation
 
-A collection of scripts designed to automate video transcoding and media library management using [HandBrakeCLI](https://handbrake.fr/).
+This project automates the process of saving Plaud.ai summary emails and their recording attachments to a specific folder in Google Drive.
 
-## Scripts
+## Features
 
-### 1. Python Batch Converter (`hb_batchconvertvideos.py`)
-A cross-platform (Python 2.7+) script for batch-converting video files into a standard MP4 format.
+- **Gmail Search**: Automatically finds emails from `PLAUD.AI <no-reply@plaud.ai>` with `[PLAUD-AutoFlow]` in the subject.
+- **Markdown Conversion**: Saves email content as a Markdown file with the format `YYYY-MM-DD HH:MM [Subject].md`.
+- **Attachment Handling**: Saves recording attachments with the same timestamp prefix as the Markdown file.
+- **Drive Filing**: Places all files in the `Filing Cabinet/Plaud` directory on Google Drive (creates it if it doesn't exist).
+- **Archiving**: Automatically removes processed emails from the Gmail Inbox.
 
-- **Features**: Automatically crawls a directory and converts common formats (`.avi`, `.mkv`, `.mov`, etc.) to MP4 using the Handbrake "Normal" preset.
-- **Dependencies**: Requires `HandBrakeCLI.exe` located at `C:\Program Files\Handbrake\HandBrakeCLI.exe`.
-- **> [!CAUTION]**
-  > This script **permanently deletes** the original source file upon successful conversion.
+## Structure
 
-### 2. PowerShell Media Manager (`ConvertM4V.ps1`)
-A Windows-focused script tailored for home media servers (e.g., Microserver setups).
+- `gmail_mcp.py`: Gmail MCP server with tools for searching, downloading, and archiving.
+- `drive_mcp.py`: Drive MCP server with tools for folder and file management.
+- `plaud_automation.py`: The coordination script that runs the automation.
 
-- **Features**:
-  - Handles conversion from network shares.
-  - Checks for existing movies in the destination library to avoid duplicates.
-  - Moves original files to `Converted` or `Duplicates` folders instead of deleting them.
-  - Uses the `AppleTV` preset by default.
-- **Dependencies**: Configured for a specific `Microserver` environment; requires paths to be updated in the script header.
+## Setup
 
-## Prerequisites
+1.  **Dependencies**:
+    ```bash
+    pip install mcp google-api-python-client google-auth-oauthlib google-auth-httplib2
+    ```
+2.  **Credentials**: Place your Google Cloud `credentials.json` in this directory.
+3.  **Run**:
+    ```bash
+    python3 plaud_automation.py
+    ```
 
-- [HandBrake Command Line Interface (HandBrakeCLI)](https://handbrake.fr/downloads2.php)
-- Python 2.7 (for the Python script)
-- PowerShell (for the PS1 script)
+## License
+MIT
