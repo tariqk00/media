@@ -1,0 +1,142 @@
+import os.path
+import base64
+from typing import Optional, List, Dict, Any
+
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
+from mcp.server.fastmcp import FastMCP
+
+# If modifying these scopes, delete the file token.json.
+SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
+
+mcp = FastMCP("Gmail")
+
+def get_gmail_service():
+    creds = None
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+    return build('gmail', 'v1', credentials=creds)
+
+@mcp.tool()
+def search_plaud_emails(query: str = 'from:PLAUD.AI <no-reply@plaud.ai> subject:[PLAUD-AutoFlow]') -> List[Dict[str, str]]:
+    """
+    Search for Plaud.ai emails matching the specific criteria.
+    Returns a list of email metadata (id, threadId, subject, date).
+    """
+    service = get_gmail_service()
+    try:
+        results = service.users().messages().list(userId='me', q=query).execute()
+        messages = results.get('messages', [])
+        
+        email_list = []
+        for msg in messages:
+            msg_details = service.users().messages().get(userId='me', id=msg['id']).execute()
+            headers = msg_details['payload']['headers']
+            subject = next(h['value'] for h in headers if h['name'] == 'Subject')
+            date = next(h['value'] for h in headers if h['name'] == 'Date')
+            email_list.append({
+                'id': msg['id'],
+                'threadId': msg['threadId'],
+                'subject': subject,
+                'date': date
+            })
+        return email_list
+    except HttpError as error:
+        return [f"An error occurred: {error}"]
+
+@mcp.tool()
+def get_email_content(message_id: str) -> Dict[str, Any]:
+    """
+    Retrieve the full content of an email, including body and attachment metadata.
+    """
+    service = get_gmail_service()
+    try:
+        message = service.users().messages().get(userId='me', id=message_id).execute()
+        payload = message['payload']
+        headers = payload['headers']
+        
+        parts = payload.get('parts', [])
+        body = ""
+        attachments = []
+        
+        def process_parts(parts):
+            nonlocal body
+            for part in parts:
+                if part['mimeType'] == 'text/plain':
+                    data = part['body'].get('data')
+                    if data:
+                        body += base64.urlsafe_b64decode(data).decode()
+                elif part['mimeType'] == 'text/html' and not body:
+                     data = part['body'].get('data')
+                     if data:
+                        # We might want to convert HTML to Markdown later
+                        body += base64.urlsafe_b64decode(data).decode()
+                elif part.get('parts'):
+                    process_parts(part['parts'])
+                
+                if part.get('filename'):
+                    attachments.append({
+                        'filename': part['filename'],
+                        'attachmentId': part['body'].get('attachmentId'),
+                        'size': part['body'].get('size')
+                    })
+
+        if not parts:
+            data = payload['body'].get('data')
+            if data:
+                body = base64.urlsafe_b64decode(data).decode()
+        else:
+            process_parts(parts)
+            
+        return {
+            'body': body,
+            'attachments': attachments,
+            'subject': next(h['value'] for h in headers if h['name'] == 'Subject'),
+            'date': next(h['value'] for h in headers if h['name'] == 'Date')
+        }
+    except HttpError as error:
+        return {"error": str(error)}
+
+@mcp.tool()
+def download_attachment(message_id: str, attachment_id: str) -> str:
+    """
+    Download an attachment by ID and return the base64 encoded content.
+    """
+    service = get_gmail_service()
+    try:
+        attachment = service.users().messages().attachments().get(
+            userId='me', messageId=message_id, id=attachment_id).execute()
+        return attachment['data']
+    except HttpError as error:
+        return f"An error occurred: {error}"
+
+@mcp.tool()
+def archive_email_thread(thread_id: str):
+    """
+    Archive a specific email thread by removing the INBOX label.
+    """
+    service = get_gmail_service()
+    try:
+        service.users().threads().modify(
+            userId='me', id=thread_id,
+            body={'removeLabelIds': ['INBOX']}
+        ).execute()
+        return f"Thread {thread_id} archived successfully."
+    except HttpError as error:
+        return f"An error occurred: {error}"
+
+if __name__ == "__main__":
+    mcp.run()
