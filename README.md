@@ -28,5 +28,16 @@ This project automates the process of saving Plaud.ai summary emails and their r
     python3 plaud_automation.py
     ```
 
+## Scheduling
+
+The automation is scheduled to run daily at **7:00 AM** using a systemd user timer.
+- `plaud-automation.service`: Defined the execution command.
+- `plaud-automation.timer`: Defines the schedule.
+
+To check the timer status:
+```bash
+systemctl --user list-timers plaud-automation.timer
+```
+
 ## License
 MIT
