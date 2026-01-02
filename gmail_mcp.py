@@ -31,7 +31,7 @@ def get_gmail_service():
     return build('gmail', 'v1', credentials=creds)
 
 @mcp.tool()
-def search_plaud_emails(query: str = 'from:PLAUD.AI <no-reply@plaud.ai> subject:[PLAUD-AutoFlow]') -> List[Dict[str, str]]:
+def search_plaud_emails(query: str = 'from:PLAUD.AI <no-reply@plaud.ai> subject:[PLAUD-AutoFlow] label:INBOX is:unread') -> List[Dict[str, str]]:
     """
     Search for Plaud.ai emails matching the specific criteria.
     Returns a list of email metadata (id, threadId, subject, date).
