@@ -1,0 +1,55 @@
+
+import os
+import json
+from google_auth_oauthlib.flow import InstalledAppFlow
+
+def refresh_gmail():
+    SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
+    print("\n--- Refreshing GMAIL Token (token.json) ---")
+    if os.path.exists('token.json'):
+        # print("Removing old token.json...")
+        pass 
+    
+    flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+    # Try OOB flow
+    flow.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
+    
+    auth_url, _ = flow.authorization_url(prompt='consent')
+    
+    print('Please visit this URL to authorize this application: {}'.format(auth_url))
+    code = input('Enter the authorization code: ')
+    
+    flow.fetch_token(code=code)
+    creds = flow.credentials
+    
+    with open('token.json', 'w') as token:
+        token.write(creds.to_json())
+    print("Successfully saved token.json")
+
+def refresh_drive():
+    SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive.metadata.readonly']
+    print("\n--- Refreshing DRIVE Token (token_drive.json) ---")
+    if os.path.exists('token_drive.json'):
+        # print("Removing old token_drive.json...")
+        pass
+        
+    flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+    # Try OOB flow
+    flow.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
+    
+    auth_url, _ = flow.authorization_url(prompt='consent')
+    
+    print('Please visit this URL to authorize this application: {}'.format(auth_url))
+    code = input('Enter the authorization code: ')
+    
+    flow.fetch_token(code=code)
+    creds = flow.credentials
+    
+    with open('token_drive.json', 'w') as token:
+        token.write(creds.to_json())
+    print("Successfully saved token_drive.json")
+
+if __name__ == "__main__":
+    print("Please ensure credentials.json is present.")
+    # refresh_gmail()
+    refresh_drive() # Do one at a time to avoid confusion or Timeout
