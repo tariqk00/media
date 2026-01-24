@@ -1,8 +1,15 @@
+
+import sys
+import os
+# Add repo root to path
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if REPO_ROOT not in sys.path:
+    sys.path.append(REPO_ROOT)
 """
 Diagnostic script to list files in the 'Filing Cabinet/Plaud' folder 
 using the `drive_mcp` module.
 """
-import drive_mcp
+from src.mcp_server import drive as drive_mcp
 
 def list_plaud_files():
     folder_id = drive_mcp.get_or_create_folder("Filing Cabinet/Plaud")

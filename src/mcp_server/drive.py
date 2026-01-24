@@ -16,23 +16,23 @@ from googleapiclient.http import MediaIoBaseUpload
 
 from mcp.server.fastmcp import FastMCP
 
-# If modifying these scopes, delete the file token_drive.json.
+# If modifying these scopes, delete the file config/token_drive.json.
 SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive.metadata.readonly']
 
 mcp = FastMCP("GoogleDrive")
 
 def get_drive_service():
     creds = None
-    if os.path.exists('token_drive.json'):
-        creds = Credentials.from_authorized_user_file('token_drive.json', SCOPES)
+    if os.path.exists('config/token_drive.json'):
+        creds = Credentials.from_authorized_user_file('config/token_drive.json', SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+                'config/credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
-        with open('token_drive.json', 'w') as token:
+        with open('config/token_drive.json', 'w') as token:
             token.write(creds.to_json())
     return build('drive', 'v3', credentials=creds)
 

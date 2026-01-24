@@ -3,8 +3,8 @@ Main automation workflow for Plaud.ai.
 Orchestrates: Gmail Search -> Content Extraction -> Drive Upload -> Email Archiving.
 """
 import datetime
-import gmail_mcp
-import drive_mcp
+from src.mcp_server import gmail as gmail_mcp
+from src.mcp_server import drive as drive_mcp
 
 def format_date_time(date_str):
     # Example date_str: "Tue, 30 Dec 2025 15:45:00 +0000"

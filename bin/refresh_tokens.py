@@ -1,4 +1,11 @@
 
+import sys
+import os
+# Add repo root to path
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if REPO_ROOT not in sys.path:
+    sys.path.append(REPO_ROOT)
+
 """
 Interactive console tool to manually refresh Google OAuth tokens 
 using the Out-of-Band (OOB) flow.
@@ -10,12 +17,12 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 def refresh_gmail():
     SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
-    print("\n--- Refreshing GMAIL Token (token.json) ---")
-    if os.path.exists('token.json'):
-        # print("Removing old token.json...")
+    print("\n--- Refreshing GMAIL Token (config/token.json) ---")
+    if os.path.exists('config/token.json'):
+        # print("Removing old config/token.json...")
         pass 
     
-    flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+    flow = InstalledAppFlow.from_client_secrets_file('config/credentials.json', SCOPES)
     # Try OOB flow
     flow.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
     
@@ -27,18 +34,18 @@ def refresh_gmail():
     flow.fetch_token(code=code)
     creds = flow.credentials
     
-    with open('token.json', 'w') as token:
+    with open('config/token.json', 'w') as token:
         token.write(creds.to_json())
-    print("Successfully saved token.json")
+    print("Successfully saved config/token.json")
 
 def refresh_drive():
     SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive.metadata.readonly']
-    print("\n--- Refreshing DRIVE Token (token_drive.json) ---")
-    if os.path.exists('token_drive.json'):
-        # print("Removing old token_drive.json...")
+    print("\n--- Refreshing DRIVE Token (config/token_drive.json) ---")
+    if os.path.exists('config/token_drive.json'):
+        # print("Removing old config/token_drive.json...")
         pass
         
-    flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+    flow = InstalledAppFlow.from_client_secrets_file('config/credentials.json', SCOPES)
     # Try OOB flow
     flow.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
     
@@ -50,11 +57,11 @@ def refresh_drive():
     flow.fetch_token(code=code)
     creds = flow.credentials
     
-    with open('token_drive.json', 'w') as token:
+    with open('config/token_drive.json', 'w') as token:
         token.write(creds.to_json())
-    print("Successfully saved token_drive.json")
+    print("Successfully saved config/token_drive.json")
 
 if __name__ == "__main__":
-    print("Please ensure credentials.json is present.")
+    print("Please ensure config/credentials.json is present.")
     # refresh_gmail()
     refresh_drive() # Do one at a time to avoid confusion or Timeout

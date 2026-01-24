@@ -22,14 +22,14 @@ if repo_root not in sys.path:
 from toolbox.core.google import GoogleAuth
 from mcp.server.fastmcp import FastMCP
 
-# If modifying these scopes, delete the file token.json.
+# If modifying these scopes, delete the file config/token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
 
 mcp = FastMCP("Gmail")
 
 def get_gmail_service():
     auth = GoogleAuth(base_dir=os.path.dirname(os.path.abspath(__file__)))
-    creds = auth.get_credentials(token_filename='token.json', credentials_filename='credentials.json', scopes=SCOPES)
+    creds = auth.get_credentials(token_filename='config/token.json', credentials_filename='config/credentials.json', scopes=SCOPES)
     return build('gmail', 'v1', credentials=creds)
 
 @mcp.tool()
