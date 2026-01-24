@@ -1,3 +1,7 @@
+"""
+Diagnostic script to list files in the 'Filing Cabinet/Plaud' folder 
+using the `drive_mcp` module.
+"""
 import drive_mcp
 
 def list_plaud_files():

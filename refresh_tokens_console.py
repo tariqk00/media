@@ -1,4 +1,9 @@
 
+"""
+Interactive console tool to manually refresh Google OAuth tokens 
+using the Out-of-Band (OOB) flow.
+"""
+
 import os
 import json
 from google_auth_oauthlib.flow import InstalledAppFlow

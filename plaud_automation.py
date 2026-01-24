@@ -1,3 +1,7 @@
+"""
+Main automation workflow for Plaud.ai.
+Orchestrates: Gmail Search -> Content Extraction -> Drive Upload -> Email Archiving.
+"""
 import datetime
 import gmail_mcp
 import drive_mcp

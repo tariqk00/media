@@ -1,3 +1,7 @@
+"""
+FastMCP Server implementation for Gmail.
+Exposes tools to Search Emails, Get Content, Download Attachments, and Archive Threads.
+"""
 import os.path
 import base64
 from typing import Optional, List, Dict, Any

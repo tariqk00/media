@@ -1,3 +1,7 @@
+"""
+FastMCP Server implementation for Google Drive.
+Exposes tools to Create Folders and Upload Files (Text/Binary).
+"""
 import os.path
 import io
 import base64
