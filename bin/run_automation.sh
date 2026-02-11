@@ -22,8 +22,9 @@ if [ ! -d "$TOOLBOX_DIR" ]; then
     fi
 fi
 
-# Set PYTHONPATH to include plaud root and toolbox root
-export PYTHONPATH="$REPO_ROOT:$TOOLBOX_DIR:$PYTHONPATH"
+# Set PYTHONPATH to include plaud root and the parent of the toolbox root (to import 'toolbox' as a package)
+PARENT_DIR="$(dirname "$REPO_ROOT")"
+export PYTHONPATH="$REPO_ROOT:$PARENT_DIR:$PYTHONPATH"
 
 # Detect Python Executable (prefer local venv)
 if [ -f "$REPO_ROOT/venv/bin/python3" ]; then
